@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Portal Fiscal — iFixcal</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy:   #1B2A4A;
+      --navy2:  #243559;
+      --gold:   #C9A84C;
+      --gold2:  #E0BE72;
+      --bg:     #F0F2F7;
+      --white:  #FFFFFF;
+      --gray1:  #6B7280;
+      --gray2:  #E5E7EB;
+      --green:  #16A34A;
+      --red:    #DC2626;
+      --radius: 14px;
+      --shadow: 0 4px 24px rgba(27,42,74,.10);
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--navy);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background: var(--navy);
+      padding: 28px 24px 24px;
+      text-align: center;
+    }
+    header img.logo {
+      height: 90px;
+      object-fit: contain;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,.3));
+    }
+    header h1 {
+      color: var(--white);
+      font-size: 1.05rem;
+      font-weight: 400;
+      margin-top: 10px;
+      letter-spacing: .04em;
+      opacity: .85;
+    }
+    .gold-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
+    }
+    main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 40px 16px 60px;
+    }
+    .container { width: 100%; max-width: 540px; }
+    .card {
+      background: var(--white);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 32px 28px;
+    }
+    .card-title {
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .1em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 6px;
+    }
+    .input-row { display: flex; gap: 10px; margin-bottom: 0; }
+    .input-row input {
+      flex: 1;
+      padding: 13px 16px;
+      border: 2px solid var(--gray2);
+      border-radius: 10px;
+      font-size: .98rem;
+      font-family: 'Inter', sans-serif;
+      font-weight: 500;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: var(--navy);
+      outline: none;
+      transition: border-color .2s;
+    }
+    .input-row input:focus { border-color: var(--gold); }
+    .input-row input::placeholder { text-transform: none; font-weight: 400; color: #9CA3AF; }
+    .btn-search {
+      padding: 13px 22px;
+      background: var(--navy);
+      color: var(--white);
+      border: none;
+      border-radius: 10px;
+      font-size: .95rem;
+      font-weight: 600;
+      font-family: 'Inter', sans-serif;
+      cursor: pointer;
+      transition: background .2s, transform .1s;
+      white-space: nowrap;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .btn-search:hover  { background: var(--navy2); }
+    .btn-search:active { transform: scale(.98); }
+    .btn-search:disabled { opacity: .65; cursor: not-allowed; }
+
+    .msg {
+      margin-top: 20px;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: .9rem;
+      font-weight: 500;
+      display: none;
+    }
+    .msg.error   { background: #FEF2F2; color: var(--red);   border-left: 4px solid var(--red);   }
+    .msg.success { background: #F0FDF4; color: var(--green); border-left: 4px solid var(--green); }
+
+    #results { margin-top: 24px; display: none; animation: slideIn .22s ease; }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .rfc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px; padding: 0 2px;
+    }
+    .rfc-label {
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--gray1);
+    }
+    .rfc-value {
+      font-size: .88rem; font-weight: 700;
+      background: var(--navy); color: var(--gold2);
+      border-radius: 7px; padding: 5px 14px; letter-spacing: .08em;
+    }
+    .doc-cards { display: flex; flex-direction: column; gap: 12px; }
+    .doc-card {
+      display: flex; align-items: center; gap: 16px;
+      background: var(--white);
+      border: 2px solid var(--gray2);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      cursor: pointer;
+      transition: border-color .2s, box-shadow .2s, transform .1s;
+      box-shadow: 0 1px 4px rgba(27,42,74,.06);
+    }
+    .doc-card:hover {
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(201,168,76,.12), var(--shadow);
+      transform: translateY(-1px);
+    }
+    .doc-card:active { transform: translateY(0) scale(.99); }
+    .doc-icon {
+      width: 44px; height: 44px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; flex-shrink: 0;
+    }
+    .doc-icon.csf     { background: #EEF2FF; }
+    .doc-icon.opinion { background: #F0FDF4; }
+    .doc-info { flex: 1; }
+    .doc-info strong { display: block; font-size: .93rem; font-weight: 600; color: var(--navy); }
+    .doc-info small  { font-size: .78rem; color: var(--gray1); margin-top: 2px; display: block; }
+    .dl-btn {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: var(--gold);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: background .18s;
+    }
+    .doc-card:hover .dl-btn { background: var(--gold2); }
+    .dl-btn svg { width: 15px; height: 15px; stroke: #fff; stroke-width: 2.2; fill: none; }
+
+    /* Modal */
+    .overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      backdrop-filter: blur(3px); z-index: 100;
+      display: none; align-items: center; justify-content: center; padding: 16px;
+    }
+    .overlay.open { display: flex; }
+    .modal {
+      background: var(--white); border-radius: var(--radius);
+      padding: 32px 28px; width: 100%; max-width: 420px;
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      animation: popIn .2s ease;
+    }
+    @keyframes popIn {
+      from { transform: scale(.95); opacity: 0; }
+      to   { transform: scale(1);   opacity: 1; }
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+    .modal-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
+    .modal-sub   { font-size: .8rem; color: var(--gray1); margin-top: 3px; }
+    .btn-close {
+      background: none; border: none; cursor: pointer;
+      font-size: 1.3rem; color: var(--gray1); line-height: 1; padding: 0 2px;
+    }
+    .modal-doc-pill {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--bg); border-radius: 8px;
+      padding: 8px 14px; margin-bottom: 18px;
+      font-size: .82rem; font-weight: 500; color: var(--navy);
+    }
+    .modal input[type="text"],
+    .modal input[type="tel"] {
+      width: 100%; padding: 12px 14px;
+      border: 2px solid var(--gray2); border-radius: 10px;
+      font-size: .95rem; font-family: 'Inter', sans-serif; color: var(--navy);
+      outline: none; margin-bottom: 16px; transition: border-color .2s;
+    }
+    .modal input[type="text"]:focus,
+    .modal input[type="tel"]:focus { border-color: var(--gold); }
+    .modal input.input-error { border-color: var(--red) !important; }
+
+    .email-row {
+      display: flex; align-items: center; gap: 6px;
+      margin-bottom: 16px;
+    }
+    .email-row input {
+      flex: 1; padding: 12px 14px;
+      border: 2px solid var(--gray2); border-radius: 10px;
+      font-size: .95rem; font-family: 'Inter', sans-serif; color: var(--navy);
+      outline: none; transition: border-color .2s;
+      margin-bottom: 0 !important;
+      min-width: 0;
+    }
+    .email-row input:focus { border-color: var(--gold); }
+    .at-sign {
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--gold); flex-shrink: 0; line-height: 1;
+    }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-cancel {
+      flex: 1; padding: 12px; background: var(--bg); border: none; border-radius: 10px;
+      font-size: .9rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      color: var(--gray1); cursor: pointer;
+    }
+    .btn-download {
+      flex: 2; padding: 12px; background: var(--navy); border: none; border-radius: 10px;
+      font-size: .9rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      color: var(--white); cursor: pointer; transition: background .2s;
+    }
+    .btn-download:hover { background: var(--navy2); }
+
+    footer {
+      text-align: center; padding: 18px;
+      font-size: .75rem; color: var(--gray1);
+      border-top: 1px solid var(--gray2); background: var(--white);
+    }
+    footer strong { color: var(--navy); }
+
+    .spinner {
+      display: inline-block; width: 15px; height: 15px;
+      border: 2px solid rgba(255,255,255,.4); border-top-color: white;
+      border-radius: 50%; animation: spin .7s linear infinite; flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 480px) {
+      .card { padding: 24px 18px; }
+      .modal { padding: 24px 18px; }
+      header img.logo { height: 70px; }
+      .input-row { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <img class="logo" src="assets/logo.png" alt="iFixcal">
+  <h1>Portal de Documentos Fiscales</h1>
+</header>
+<div class="gold-bar"></div>
+
+<main>
+  <div class="container">
+    <div class="card">
+      <div class="card-title">Consulta de documentos</div>
+      <label for="rfc-input">RFC del contribuyente</label>
+      <div class="input-row">
+        <input
+          id="rfc-input"
+          type="text"
+          placeholder="Ej. XAXX010101000"
+          maxlength="13"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button class="btn-search" id="btn-search" onclick="buscar()">
+          Buscar
+        </button>
+      </div>
+      <div class="msg error"   id="msg-error"></div>
+      <div class="msg success" id="msg-ok"></div>
+    </div>
+
+    <div id="results">
+      <div class="rfc-header">
+        <span class="rfc-label">Documentos disponibles</span>
+        <span class="rfc-value" id="badge-rfc"></span>
+      </div>
+      <div class="doc-cards">
+        <div class="doc-card" onclick="abrirModal('csf')">
+          <div class="doc-icon csf">📄</div>
+          <div class="doc-info">
+            <strong>Constancia de Situación Fiscal</strong>
+            <small>Constancia del SAT — vigente al mes actual</small>
+          </div>
+          <div class="dl-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 3v13M5 16l7 6 7-6"/><path d="M3 21h18"/></svg>
+          </div>
+        </div>
+        <div class="doc-card" onclick="abrirModal('opinion')">
+          <div class="doc-icon opinion">✅</div>
+          <div class="doc-info">
+            <strong>Opinión de Cumplimiento</strong>
+            <small>Opinión del SAT — vigente al mes actual</small>
+          </div>
+          <div class="dl-btn">
+            <svg viewBox="0 0 24 24"><path d="M12 3v13M5 16l7 6 7-6"/><path d="M3 21h18"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <strong>iFixcal</strong> · Documentos generados directamente desde el SAT
+</footer>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)cerrarModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Registrar descarga</div>
+        <div class="modal-sub">Requerido antes de descargar el documento</div>
+      </div>
+      <button class="btn-close" onclick="cerrarModal()">✕</button>
+    </div>
+    <div class="modal-doc-pill" id="modal-doc-pill"></div>
+
+    <label for="modal-tel">Teléfono</label>
+    <input type="tel" id="modal-tel" maxlength="10" autocomplete="off" inputmode="numeric">
+
+    <label>Correo electrónico</label>
+    <div class="email-row">
+      <input type="text" id="modal-email-user" autocomplete="off" spellcheck="false">
+      <span class="at-sign">@</span>
+      <input type="text" id="modal-email-dom"  autocomplete="off" spellcheck="false">
+    </div>
+
+    <div class="modal-btns">
+      <button class="btn-cancel"   onclick="cerrarModal()">Cancelar</button>
+      <button class="btn-download" onclick="confirmarDescarga()">Descargar PDF</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════════════════════════
+  //  CONFIGURACIÓN — solo cambia estos 3 valores
+  // ═══════════════════════════════════════════════════════════
+  const GITHUB_USER   = 'jssleon';       // ← tu usuario de GitHub
+  const GITHUB_REPO   = 'ifixcales';   // ← nombre del repo
+  const GITHUB_BRANCH = 'main';             // ← rama (normalmente 'main')
+
+  // Opcional: URL de Google Apps Script para log de descargas
+  const REGISTRY_URL  = '';
+  // ═══════════════════════════════════════════════════════════
+
+  const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
+
+  // Cache de archivos para no pedir la API en cada búsqueda
+  let archivosCache = null;
+
+  const LABELS = {
+    csf:     { emoji: '📄', nombre: 'Constancia de Situación Fiscal' },
+    opinion: { emoji: '✅', nombre: 'Opinión de Cumplimiento'         }
+  };
+
+  let rfcActual  = '';
+  let tipoActual = '';
+  let urlActual  = '';  // URL del archivo a descargar
+
+  // ── Auto-uppercase + Enter ──────────────────────────────────
+  const rfcInput = document.getElementById('rfc-input');
+  rfcInput.addEventListener('input', e => {
+    const p = e.target.selectionStart;
+    e.target.value = e.target.value.toUpperCase().replace(/\s/g, '');
+    e.target.setSelectionRange(p, p);
+  });
+  rfcInput.addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+
+  // ── Parsear timestamp del nombre de archivo ─────────────────
+  // Formato: DDMMYYYYHHMMSS → convertir a número YYYYMMDDHHMMSS para ordenar
+  function parsearTimestamp(nombre) {
+    const m = nombre.match(/_(\d{14})\.pdf$/i);
+    if (!m) return 0;
+    const ts = m[1];
+    const dd   = ts.slice(0, 2);
+    const mm   = ts.slice(2, 4);
+    const yyyy = ts.slice(4, 8);
+    const rest = ts.slice(8);        // HHMMSS
+    return parseInt(yyyy + mm + dd + rest, 10);
+  }
+
+  // ── Obtener lista de archivos (con cache) ───────────────────
+  async function obtenerArchivos() {
+    if (archivosCache) return archivosCache;
+    const resp = await fetch(API_URL);
+    if (!resp.ok) throw new Error(`GitHub API error: ${resp.status}`);
+    archivosCache = await resp.json();
+    return archivosCache;
+  }
+
+  // ── Encontrar el archivo más reciente de un RFC y tipo ──────
+  function archivoMasReciente(archivos, rfc, tipo) {
+    const prefijo = tipo === 'csf'
+      ? `CSF_${rfc}_`
+      : `OpinionCumplimiento_${rfc}_`;
+
+    const candidatos = archivos
+      .filter(f => f.type === 'file' && f.name.startsWith(prefijo) && f.name.endsWith('.pdf'))
+      .sort((a, b) => parsearTimestamp(b.name) - parsearTimestamp(a.name));
+
+    return candidatos[0] || null;
+  }
+
+  // ── BUSCAR ──────────────────────────────────────────────────
+  async function buscar() {
+    const rfc = rfcInput.value.trim().toUpperCase();
+    const eErr = document.getElementById('msg-error');
+    const eOk  = document.getElementById('msg-ok');
+    const res  = document.getElementById('results');
+    const btn  = document.getElementById('btn-search');
+
+    eErr.style.display = 'none';
+    eOk.style.display  = 'none';
+    res.style.display  = 'none';
+
+    if (!rfc) {
+      eErr.textContent = '⚠️ Ingresa un RFC para continuar.';
+      eErr.style.display = 'block';
+      return;
+    }
+
+    // Estado de carga
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Buscando…';
+
+    try {
+      const archivos = await obtenerArchivos();
+
+      const csfFile = archivoMasReciente(archivos, rfc, 'csf');
+      const opFile  = archivoMasReciente(archivos, rfc, 'opinion');
+
+      if (!csfFile && !opFile) {
+        eErr.textContent = `❌ RFC "${rfc}" no encontrado. Verifica que esté escrito correctamente.`;
+        eErr.style.display = 'block';
+        return;
+      }
+
+      // Guardar referencias para la descarga
+      rfcActual = rfc;
+      window._urlCsf    = csfFile?.download_url || null;
+      window._urlOpinion = opFile?.download_url  || null;
+
+      document.getElementById('badge-rfc').textContent = rfc;
+      res.style.display = 'block';
+      setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 30);
+
+    } catch (err) {
+      eErr.textContent = '⚠️ No se pudo conectar. Verifica tu conexión e intenta de nuevo.';
+      eErr.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.innerHTML = 'Buscar';
+    }
+  }
+
+  // ── MODAL ───────────────────────────────────────────────────
+  function abrirModal(tipo) {
+    const url = tipo === 'csf' ? window._urlCsf : window._urlOpinion;
+    if (!url) {
+      alert('Este documento no está disponible para este RFC.');
+      return;
+    }
+    tipoActual = tipo;
+    urlActual  = url;
+    document.getElementById('modal-doc-pill').textContent =
+      `${LABELS[tipo].emoji} ${LABELS[tipo].nombre}`;
+    document.getElementById('modal-tel').value        = '';
+    document.getElementById('modal-email-user').value = '';
+    document.getElementById('modal-email-dom').value  = '';
+    // Limpiar errores visuales previos
+    ['modal-tel','modal-email-user','modal-email-dom'].forEach(id =>
+      document.getElementById(id).classList.remove('input-error')
+    );
+    document.getElementById('overlay').classList.add('open');
+    setTimeout(() => document.getElementById('modal-tel').focus(), 80);
+  }
+
+  function cerrarModal() {
+    document.getElementById('overlay').classList.remove('open');
+    tipoActual = '';
+    urlActual  = '';
+  }
+
+  // Solo dígitos en el campo de teléfono
+  document.getElementById('modal-tel').addEventListener('input', e => {
+    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  // ── CONFIRMAR DESCARGA ──────────────────────────────────────
+  function confirmarDescarga() {
+    const telInp  = document.getElementById('modal-tel');
+    const userInp = document.getElementById('modal-email-user');
+    const domInp  = document.getElementById('modal-email-dom');
+
+    const tel       = telInp.value.trim();
+    const emailUser = userInp.value.trim().toLowerCase();
+    const emailDom  = domInp.value.trim().toLowerCase();
+
+    // Limpiar errores previos
+    [telInp, userInp, domInp].forEach(i => i.classList.remove('input-error'));
+
+    let hayError = false;
+
+    if (tel.length !== 10) {
+      telInp.classList.add('input-error');
+      telInp.focus();
+      hayError = true;
+    }
+    if (!emailUser) {
+      userInp.classList.add('input-error');
+      if (!hayError) { userInp.focus(); hayError = true; }
+    }
+    if (!emailDom || !emailDom.includes('.')) {
+      domInp.classList.add('input-error');
+      if (!hayError) { domInp.focus(); hayError = true; }
+    }
+    if (hayError) return;
+
+    const correo = `${emailUser}@${emailDom}`;
+
+    // Abrir PDF
+    window.open(urlActual, '_blank', 'noopener');
+
+    // Registrar (silencioso)
+    if (REGISTRY_URL) {
+      fetch(REGISTRY_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          telefono: tel,
+          correo,
+          rfc:      rfcActual,
+          documento: LABELS[tipoActual].nombre,
+          archivo:  urlActual.split('/').pop(),
+          fecha:    new Date().toLocaleString('es-MX', { timeZone: 'America/Cancun' })
+        })
+      }).catch(() => {});
+    }
+
+    cerrarModal();
+  }
+</script>
+
+</body>
+</html>
