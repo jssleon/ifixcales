@@ -315,7 +315,6 @@
           <div class="doc-icon csf">📄</div>
           <div class="doc-info">
             <strong>Constancia de Situación Fiscal</strong>
-            <small>Constancia del SAT — vigente al mes actual</small>
           </div>
           <div class="dl-btn">
             <svg viewBox="0 0 24 24"><path d="M12 3v13M5 16l7 6 7-6"/><path d="M3 21h18"/></svg>
@@ -325,7 +324,6 @@
           <div class="doc-icon opinion">✅</div>
           <div class="doc-info">
             <strong>Opinión de Cumplimiento</strong>
-            <small>Opinión del SAT — vigente al mes actual</small>
           </div>
           <div class="dl-btn">
             <svg viewBox="0 0 24 24"><path d="M12 3v13M5 16l7 6 7-6"/><path d="M3 21h18"/></svg>
@@ -337,7 +335,7 @@
 </main>
 
 <footer>
-  <strong>iFixcal</strong> · Documentos generados directamente desde el SAT
+  <strong>iFixcal</strong> · L.C. Jesús León · Documentos emitidos por el SAT · Hecho con <span style="color:var(--gold)">♦</span> y <a href="https://claude.ai" target="_blank" rel="noopener" style="color:var(--gold);text-decoration:none;font-weight:600">Claude</a>
 </footer>
 
 <div class="overlay" id="overlay" onclick="if(event.target===this)cerrarModal()">
@@ -380,7 +378,8 @@
   const REGISTRY_URL  = '';
   // ═══════════════════════════════════════════════════════════
 
-  const API_URL = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
+  const API_URL   = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
+  const PAGES_BASE = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/archivos/`;
 
   // Cache de archivos para no pedir la API en cada búsqueda
   let archivosCache = null;
@@ -473,10 +472,10 @@
         return;
       }
 
-      // Guardar referencias para la descarga
+      // Guardar referencias para la descarga (URL de GitHub Pages → abre inline en el navegador)
       rfcActual = rfc;
-      window._urlCsf    = csfFile?.download_url || null;
-      window._urlOpinion = opFile?.download_url  || null;
+      window._urlCsf     = csfFile ? PAGES_BASE + csfFile.name : null;
+      window._urlOpinion = opFile  ? PAGES_BASE + opFile.name  : null;
 
       document.getElementById('badge-rfc').textContent = rfc;
       res.style.display = 'block';
@@ -524,6 +523,34 @@
     e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
   });
 
+  // Enter en cualquier campo del modal → confirmar descarga
+  ['modal-tel','modal-email-user','modal-email-dom'].forEach(id => {
+    document.getElementById(id).addEventListener('keydown', e => {
+      if (e.key === 'Enter') confirmarDescarga();
+    });
+  });
+
+  // Dominios conocidos de correos falsos / desechables
+  const DOMINIOS_BLOQUEADOS = new Set([
+    'mail.com','test.com','fake.com','example.com','correo.com',
+    'email.com','prueba.com','asdf.com','asd.com','qwerty.com',
+    'mailinator.com','guerrillamail.com','tempmail.com','yopmail.com',
+    'trashmail.com','sharklasers.com','dispostable.com'
+  ]);
+
+  function esCorreoValido(usuario, dominio) {
+    // Dominio en lista negra
+    if (DOMINIOS_BLOQUEADOS.has(dominio)) return false;
+    // Patrón mail@mail.com — usuario igual al dominio sin TLD
+    const base = dominio.split('.')[0];
+    if (usuario === base) return false;
+    // Mínimo: usuario ≥ 2 chars, dominio con punto y partes con ≥ 2 chars
+    const partes = dominio.split('.');
+    if (usuario.length < 2) return false;
+    if (partes.length < 2 || partes.some(p => p.length < 2)) return false;
+    return true;
+  }
+
   // ── CONFIRMAR DESCARGA ──────────────────────────────────────
   function confirmarDescarga() {
     const telInp  = document.getElementById('modal-tel');
@@ -551,6 +578,11 @@
     if (!emailDom || !emailDom.includes('.')) {
       domInp.classList.add('input-error');
       if (!hayError) { domInp.focus(); hayError = true; }
+    } else if (emailUser && !esCorreoValido(emailUser, emailDom)) {
+      // Correo con patrón falso detectado
+      userInp.classList.add('input-error');
+      domInp.classList.add('input-error');
+      if (!hayError) { userInp.focus(); hayError = true; }
     }
     if (hayError) return;
 
