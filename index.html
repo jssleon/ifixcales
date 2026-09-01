@@ -31,6 +31,8 @@
       display: flex;
       flex-direction: column;
     }
+
+    /* ── Header ── */
     header {
       background: var(--navy);
       padding: 28px 24px 24px;
@@ -53,6 +55,8 @@
       height: 4px;
       background: linear-gradient(90deg, var(--gold), var(--gold2), var(--gold));
     }
+
+    /* ── Layout ── */
     main {
       flex: 1;
       display: flex;
@@ -82,7 +86,9 @@
       color: var(--navy);
       margin-bottom: 6px;
     }
-    .input-row { display: flex; gap: 10px; margin-bottom: 0; }
+
+    /* ── RFC input ── */
+    .input-row { display: flex; gap: 10px; }
     .input-row input {
       flex: 1;
       padding: 13px 16px;
@@ -117,6 +123,7 @@
     .btn-search:active { transform: scale(.98); }
     .btn-search:disabled { opacity: .65; cursor: not-allowed; }
 
+    /* ── Mensajes de búsqueda ── */
     .msg {
       margin-top: 20px;
       padding: 14px 18px;
@@ -128,6 +135,7 @@
     .msg.error   { background: #FEF2F2; color: var(--red);   border-left: 4px solid var(--red);   }
     .msg.success { background: #F0FDF4; color: var(--green); border-left: 4px solid var(--green); }
 
+    /* ── Resultados ── */
     #results { margin-top: 24px; display: none; animation: slideIn .22s ease; }
     @keyframes slideIn {
       from { opacity: 0; transform: translateY(8px); }
@@ -172,7 +180,6 @@
     .doc-icon.opinion { background: #F0FDF4; }
     .doc-info { flex: 1; }
     .doc-info strong { display: block; font-size: .93rem; font-weight: 600; color: var(--navy); }
-    .doc-info small  { font-size: .78rem; color: var(--gray1); margin-top: 2px; display: block; }
     .dl-btn {
       width: 32px; height: 32px; border-radius: 8px;
       background: var(--gold);
@@ -182,7 +189,7 @@
     .doc-card:hover .dl-btn { background: var(--gold2); }
     .dl-btn svg { width: 15px; height: 15px; stroke: #fff; stroke-width: 2.2; fill: none; }
 
-    /* Modal */
+    /* ── Modal ── */
     .overlay {
       position: fixed; inset: 0; background: rgba(0,0,0,.45);
       backdrop-filter: blur(3px); z-index: 100;
@@ -199,7 +206,10 @@
       from { transform: scale(.95); opacity: 0; }
       to   { transform: scale(1);   opacity: 1; }
     }
-    .modal-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 18px; }
+    .modal-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 18px;
+    }
     .modal-title { font-size: 1rem; font-weight: 700; color: var(--navy); }
     .modal-sub   { font-size: .8rem; color: var(--gray1); margin-top: 3px; }
     .btn-close {
@@ -212,35 +222,19 @@
       padding: 8px 14px; margin-bottom: 18px;
       font-size: .82rem; font-weight: 500; color: var(--navy);
     }
-    .modal input[type="text"],
-    .modal input[type="tel"] {
+    .modal input[type="email"] {
       width: 100%; padding: 12px 14px;
       border: 2px solid var(--gray2); border-radius: 10px;
       font-size: .95rem; font-family: 'Inter', sans-serif; color: var(--navy);
-      outline: none; margin-bottom: 16px; transition: border-color .2s;
+      outline: none; margin-bottom: 6px; transition: border-color .2s;
     }
-    .modal input[type="text"]:focus,
-    .modal input[type="tel"]:focus { border-color: var(--gold); }
+    .modal input[type="email"]:focus { border-color: var(--gold); }
     .modal input.input-error { border-color: var(--red) !important; }
-
-    .email-row {
-      display: flex; align-items: center; gap: 6px;
-      margin-bottom: 16px;
+    .modal-field-error {
+      font-size: .78rem; color: var(--red);
+      margin-bottom: 14px; display: none;
     }
-    .email-row input {
-      flex: 1; padding: 12px 14px;
-      border: 2px solid var(--gray2); border-radius: 10px;
-      font-size: .95rem; font-family: 'Inter', sans-serif; color: var(--navy);
-      outline: none; transition: border-color .2s;
-      margin-bottom: 0 !important;
-      min-width: 0;
-    }
-    .email-row input:focus { border-color: var(--gold); }
-    .at-sign {
-      font-size: 1.1rem; font-weight: 700;
-      color: var(--gold); flex-shrink: 0; line-height: 1;
-    }
-    .modal-btns { display: flex; gap: 10px; }
+    .modal-btns { display: flex; gap: 10px; margin-top: 8px; }
     .btn-cancel {
       flex: 1; padding: 12px; background: var(--bg); border: none; border-radius: 10px;
       font-size: .9rem; font-weight: 600; font-family: 'Inter', sans-serif;
@@ -253,13 +247,15 @@
     }
     .btn-download:hover { background: var(--navy2); }
 
+    /* ── Footer ── */
     footer {
       text-align: center; padding: 18px;
-      font-size: .75rem; color: var(--gray1);
+      font-size: .75rem; color: var(--gray1); line-height: 1.9;
       border-top: 1px solid var(--gray2); background: var(--white);
     }
     footer strong { color: var(--navy); }
 
+    /* ── Spinner de búsqueda ── */
     .spinner {
       display: inline-block; width: 15px; height: 15px;
       border: 2px solid rgba(255,255,255,.4); border-top-color: white;
@@ -268,10 +264,12 @@
     @keyframes spin { to { transform: rotate(360deg); } }
 
     @media (max-width: 480px) {
-      .card { padding: 24px 18px; }
+      header { padding: 16px 20px; }
+      header img.logo { height: 60px; }
+      header h1 { font-size: .9rem; margin-top: 6px; }
+      main { padding: 20px 14px; }
+      .card  { padding: 20px 16px; }
       .modal { padding: 24px 18px; }
-      header img.logo { height: 70px; }
-      .input-row { flex-direction: column; }
     }
   </style>
 </head>
@@ -351,15 +349,9 @@
     </div>
     <div class="modal-doc-pill" id="modal-doc-pill"></div>
 
-    <label for="modal-tel">Teléfono</label>
-    <input type="tel" id="modal-tel" maxlength="10" autocomplete="off" inputmode="numeric">
-
-    <label>Correo electrónico</label>
-    <div class="email-row">
-      <input type="text" id="modal-email-user" autocomplete="off" spellcheck="false">
-      <span class="at-sign">@</span>
-      <input type="text" id="modal-email-dom"  autocomplete="off" spellcheck="false">
-    </div>
+    <label for="modal-email">Correo electrónico</label>
+    <input type="email" id="modal-email" placeholder="ejemplo: mail@dominio.com" autocomplete="off" spellcheck="false">
+    <div class="modal-field-error" id="email-error">Ingresa un mail válido</div>
 
     <div class="modal-btns">
       <button class="btn-cancel"   onclick="cerrarModal()">Cancelar</button>
@@ -372,18 +364,17 @@
   // ═══════════════════════════════════════════════════════════
   //  CONFIGURACIÓN — solo cambia estos 3 valores
   // ═══════════════════════════════════════════════════════════
-  const GITHUB_USER   = 'jssleon';           // ← tu usuario de GitHub
-  const GITHUB_REPO   = 'ifixcales';        // ← nombre del repo
-  const GITHUB_BRANCH = 'main';             // ← rama (normalmente 'main')
+  const GITHUB_USER   = 'jssleon';
+  const GITHUB_REPO   = 'ifixcales';
+  const GITHUB_BRANCH = 'main';
 
   // Opcional: URL de Google Apps Script para log de descargas
   const REGISTRY_URL  = '';
   // ═══════════════════════════════════════════════════════════
 
-  const API_URL   = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
+  const API_URL    = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
   const PAGES_BASE = `https://${GITHUB_USER}.github.io/${GITHUB_REPO}/archivos/`;
 
-  // Cache de archivos para no pedir la API en cada búsqueda
   let archivosCache = null;
 
   const LABELS = {
@@ -393,9 +384,9 @@
 
   let rfcActual  = '';
   let tipoActual = '';
-  let urlActual  = '';  // URL del archivo a descargar
+  let urlActual  = '';
 
-  // ── Auto-uppercase + Enter ──────────────────────────────────
+  // ── RFC: auto-uppercase + Enter ─────────────────────────────
   const rfcInput = document.getElementById('rfc-input');
   rfcInput.addEventListener('input', e => {
     const p = e.target.selectionStart;
@@ -405,20 +396,25 @@
   rfcInput.addEventListener('keydown', e => { if (e.key === 'Enter') buscar(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
 
-  // ── Parsear timestamp del nombre de archivo ─────────────────
-  // Formato: DDMMYYYYHHMMSS → convertir a número YYYYMMDDHHMMSS para ordenar
+  // ── Email: Enter confirma descarga ───────────────────────────
+  document.getElementById('modal-email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') confirmarDescarga();
+  });
+
+  // ── Parsear timestamp del nombre de archivo ──────────────────
+  // Formato SAT: DDMMYYYYHHMMSS → convertir a YYYYMMDDHHMMSS para ordenar
   function parsearTimestamp(nombre) {
     const m = nombre.match(/_(\d{14})\.pdf$/i);
     if (!m) return 0;
-    const ts = m[1];
+    const ts   = m[1];
     const dd   = ts.slice(0, 2);
     const mm   = ts.slice(2, 4);
     const yyyy = ts.slice(4, 8);
-    const rest = ts.slice(8);        // HHMMSS
+    const rest = ts.slice(8); // HHMMSS
     return parseInt(yyyy + mm + dd + rest, 10);
   }
 
-  // ── Obtener lista de archivos (con cache) ───────────────────
+  // ── Obtener lista de archivos desde GitHub (con cache) ───────
   async function obtenerArchivos() {
     if (archivosCache) return archivosCache;
     const resp = await fetch(API_URL);
@@ -427,29 +423,22 @@
     return archivosCache;
   }
 
-  // ── Encontrar el archivo más reciente de un RFC y tipo ──────
+  // ── Archivo más reciente para un RFC y tipo ──────────────────
   function archivoMasReciente(archivos, rfc, tipo) {
-    const prefijo = tipo === 'csf'
-      ? `CSF_${rfc}_`
-      : `OpinionCumplimiento_${rfc}_`;
-
-    const candidatos = archivos
+    const prefijo = tipo === 'csf' ? `CSF_${rfc}_` : `OpinionCumplimiento_${rfc}_`;
+    return archivos
       .filter(f => f.type === 'file' && f.name.startsWith(prefijo) && f.name.endsWith('.pdf'))
-      .sort((a, b) => parsearTimestamp(b.name) - parsearTimestamp(a.name));
-
-    return candidatos[0] || null;
+      .sort((a, b) => parsearTimestamp(b.name) - parsearTimestamp(a.name))[0] || null;
   }
 
-  // ── BUSCAR ──────────────────────────────────────────────────
+  // ── BUSCAR ───────────────────────────────────────────────────
   async function buscar() {
-    const rfc = rfcInput.value.trim().toUpperCase();
+    const rfc  = rfcInput.value.trim().toUpperCase();
     const eErr = document.getElementById('msg-error');
-    const eOk  = document.getElementById('msg-ok');
     const res  = document.getElementById('results');
     const btn  = document.getElementById('btn-search');
 
     eErr.style.display = 'none';
-    eOk.style.display  = 'none';
     res.style.display  = 'none';
 
     if (!rfc) {
@@ -458,15 +447,13 @@
       return;
     }
 
-    // Estado de carga
-    btn.disabled = true;
+    btn.disabled  = true;
     btn.innerHTML = '<span class="spinner"></span> Buscando…';
 
     try {
       const archivos = await obtenerArchivos();
-
-      const csfFile = archivoMasReciente(archivos, rfc, 'csf');
-      const opFile  = archivoMasReciente(archivos, rfc, 'opinion');
+      const csfFile  = archivoMasReciente(archivos, rfc, 'csf');
+      const opFile   = archivoMasReciente(archivos, rfc, 'opinion');
 
       if (!csfFile && !opFile) {
         eErr.textContent = `❌ RFC "${rfc}" no encontrado. Verifica que esté escrito correctamente.`;
@@ -474,7 +461,6 @@
         return;
       }
 
-      // Guardar referencias para la descarga (URL de GitHub Pages → abre inline en el navegador)
       rfcActual = rfc;
       window._urlCsf     = csfFile ? PAGES_BASE + csfFile.name : null;
       window._urlOpinion = opFile  ? PAGES_BASE + opFile.name  : null;
@@ -483,16 +469,37 @@
       res.style.display = 'block';
       setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 30);
 
-    } catch (err) {
+    } catch {
       eErr.textContent = '⚠️ No se pudo conectar. Verifica tu conexión e intenta de nuevo.';
       eErr.style.display = 'block';
     } finally {
-      btn.disabled = false;
+      btn.disabled  = false;
       btn.innerHTML = 'Buscar';
     }
   }
 
-  // ── MODAL ───────────────────────────────────────────────────
+  // ── Validación anti-correo falso ─────────────────────────────
+  const DOMINIOS_BLOQUEADOS = new Set([
+    'mail.com','test.com','fake.com','example.com','correo.com',
+    'email.com','prueba.com','asdf.com','asd.com','qwerty.com',
+    'mailinator.com','guerrillamail.com','tempmail.com','yopmail.com',
+    'trashmail.com','sharklasers.com','dispostable.com'
+  ]);
+
+  function esCorreoValido(correo) {
+    const partes = correo.split('@');
+    if (partes.length !== 2) return false;
+    const [usuario, dominio] = partes;
+    if (usuario.length < 2) return false;
+    if (DOMINIOS_BLOQUEADOS.has(dominio)) return false;
+    const base = dominio.split('.')[0];
+    if (usuario === base) return false;
+    const segmentos = dominio.split('.');
+    if (segmentos.length < 2 || segmentos.some(s => s.length < 2)) return false;
+    return true;
+  }
+
+  // ── MODAL ────────────────────────────────────────────────────
   function abrirModal(tipo) {
     const url = tipo === 'csf' ? window._urlCsf : window._urlOpinion;
     if (!url) {
@@ -501,17 +508,12 @@
     }
     tipoActual = tipo;
     urlActual  = url;
-    document.getElementById('modal-doc-pill').textContent =
-      `${LABELS[tipo].emoji} ${LABELS[tipo].nombre}`;
-    document.getElementById('modal-tel').value        = '';
-    document.getElementById('modal-email-user').value = '';
-    document.getElementById('modal-email-dom').value  = '';
-    // Limpiar errores visuales previos
-    ['modal-tel','modal-email-user','modal-email-dom'].forEach(id =>
-      document.getElementById(id).classList.remove('input-error')
-    );
+    document.getElementById('modal-doc-pill').textContent = `${LABELS[tipo].emoji} ${LABELS[tipo].nombre}`;
+    document.getElementById('modal-email').value          = '';
+    document.getElementById('modal-email').classList.remove('input-error');
+    document.getElementById('email-error').style.display  = 'none';
     document.getElementById('overlay').classList.add('open');
-    setTimeout(() => document.getElementById('modal-tel').focus(), 80);
+    setTimeout(() => document.getElementById('modal-email').focus(), 80);
   }
 
   function cerrarModal() {
@@ -520,91 +522,34 @@
     urlActual  = '';
   }
 
-  // Solo dígitos en el campo de teléfono
-  document.getElementById('modal-tel').addEventListener('input', e => {
-    e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10);
-  });
-
-  // Enter en cualquier campo del modal → confirmar descarga
-  ['modal-tel','modal-email-user','modal-email-dom'].forEach(id => {
-    document.getElementById(id).addEventListener('keydown', e => {
-      if (e.key === 'Enter') confirmarDescarga();
-    });
-  });
-
-  // Dominios conocidos de correos falsos / desechables
-  const DOMINIOS_BLOQUEADOS = new Set([
-    'mail.com','test.com','fake.com','example.com','correo.com',
-    'email.com','prueba.com','asdf.com','asd.com','qwerty.com',
-    'mailinator.com','guerrillamail.com','tempmail.com','yopmail.com',
-    'trashmail.com','sharklasers.com','dispostable.com'
-  ]);
-
-  function esCorreoValido(usuario, dominio) {
-    // Dominio en lista negra
-    if (DOMINIOS_BLOQUEADOS.has(dominio)) return false;
-    // Patrón mail@mail.com — usuario igual al dominio sin TLD
-    const base = dominio.split('.')[0];
-    if (usuario === base) return false;
-    // Mínimo: usuario ≥ 2 chars, dominio con punto y partes con ≥ 2 chars
-    const partes = dominio.split('.');
-    if (usuario.length < 2) return false;
-    if (partes.length < 2 || partes.some(p => p.length < 2)) return false;
-    return true;
-  }
-
-  // ── CONFIRMAR DESCARGA ──────────────────────────────────────
+  // ── CONFIRMAR DESCARGA ───────────────────────────────────────
   function confirmarDescarga() {
-    const telInp  = document.getElementById('modal-tel');
-    const userInp = document.getElementById('modal-email-user');
-    const domInp  = document.getElementById('modal-email-dom');
+    const emailInp = document.getElementById('modal-email');
+    const emailErr = document.getElementById('email-error');
+    const correo   = emailInp.value.trim().toLowerCase();
 
-    const tel       = telInp.value.trim();
-    const emailUser = userInp.value.trim().toLowerCase();
-    const emailDom  = domInp.value.trim().toLowerCase();
+    emailInp.classList.remove('input-error');
+    emailErr.style.display = 'none';
 
-    // Limpiar errores previos
-    [telInp, userInp, domInp].forEach(i => i.classList.remove('input-error'));
-
-    let hayError = false;
-
-    if (tel.length !== 10) {
-      telInp.classList.add('input-error');
-      telInp.focus();
-      hayError = true;
+    if (!correo || !correo.includes('@') || !esCorreoValido(correo)) {
+      emailInp.classList.add('input-error');
+      emailErr.style.display = 'block';
+      emailInp.focus();
+      return;
     }
-    if (!emailUser) {
-      userInp.classList.add('input-error');
-      if (!hayError) { userInp.focus(); hayError = true; }
-    }
-    if (!emailDom || !emailDom.includes('.')) {
-      domInp.classList.add('input-error');
-      if (!hayError) { domInp.focus(); hayError = true; }
-    } else if (emailUser && !esCorreoValido(emailUser, emailDom)) {
-      // Correo con patrón falso detectado
-      userInp.classList.add('input-error');
-      domInp.classList.add('input-error');
-      if (!hayError) { userInp.focus(); hayError = true; }
-    }
-    if (hayError) return;
 
-    const correo = `${emailUser}@${emailDom}`;
-
-    // Abrir PDF
     window.open(urlActual, '_blank', 'noopener');
 
-    // Registrar (silencioso)
     if (REGISTRY_URL) {
       fetch(REGISTRY_URL, {
         method: 'POST', mode: 'no-cors',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          telefono: tel,
           correo,
-          rfc:      rfcActual,
+          rfc:       rfcActual,
           documento: LABELS[tipoActual].nombre,
-          archivo:  urlActual.split('/').pop(),
-          fecha:    new Date().toLocaleString('es-MX', { timeZone: 'America/Cancun' })
+          archivo:   urlActual.split('/').pop(),
+          fecha:     new Date().toLocaleString('es-MX', { timeZone: 'America/Cancun' })
         })
       }).catch(() => {});
     }
