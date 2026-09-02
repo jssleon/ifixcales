@@ -247,6 +247,49 @@
     }
     .btn-download:hover { background: var(--navy2); }
 
+    /* ── Datos de facturación ── */
+    .billing-card {
+      margin-top: 12px;
+      background: var(--white);
+      border: 2px solid var(--gray2);
+      border-radius: var(--radius);
+      padding: 18px 20px 16px;
+      box-shadow: 0 1px 4px rgba(27,42,74,.06);
+    }
+    .billing-header {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 12px;
+    }
+    .billing-icon { font-size: 18px; line-height: 1; }
+    .billing-title {
+      font-size: .72rem; font-weight: 600;
+      letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
+    }
+    .billing-body {
+      font-size: .85rem; color: var(--navy); line-height: 1.7;
+      margin-bottom: 14px;
+    }
+    .billing-body .row { display: flex; gap: 8px; }
+    .billing-body .lbl { font-weight: 700; flex-shrink: 0; }
+    .billing-body .sep {
+      margin: 6px 0;
+      border: none; border-top: 1px dashed var(--gray2);
+    }
+    .billing-body .limite {
+      font-size: .8rem; color: var(--gray1); margin-top: 4px;
+    }
+    .btn-copy {
+      display: flex; align-items: center; gap: 7px;
+      width: 100%; padding: 10px 14px;
+      background: var(--navy); color: var(--white);
+      border: none; border-radius: 10px;
+      font-size: .85rem; font-weight: 600; font-family: 'Inter', sans-serif;
+      cursor: pointer; transition: background .2s;
+      justify-content: center;
+    }
+    .btn-copy:hover   { background: var(--navy2); }
+    .btn-copy.copied  { background: var(--green); }
+
     /* ── Footer ── */
     footer {
       text-align: center; padding: 18px;
@@ -328,6 +371,21 @@
           </div>
         </div>
       </div>
+
+      <!-- Datos de facturación -->
+      <div class="billing-card" id="billing-card" style="display:none">
+        <div class="billing-header">
+          <span class="billing-icon">🧾</span>
+          <span class="billing-title">Datos para facturación</span>
+        </div>
+        <div class="billing-body" id="billing-body"></div>
+        <button class="btn-copy" id="btn-copy" onclick="copiarDatos()">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copiar para WhatsApp
+        </button>
+      </div>
     </div>
   </div>
 </main>
@@ -385,6 +443,44 @@
   let rfcActual  = '';
   let tipoActual = '';
   let urlActual  = '';
+
+  // ── Datos de facturación por RFC ─────────────────────────────
+  const REGIMENES = {
+    '605': 'Sueldos y Salarios e Ingresos Asimilados a Salarios',
+    '612': 'Personas Físicas con Actividades Empresariales y Profesionales',
+    '621': 'Incorporación Fiscal',
+    '626': 'Régimen Simplificado de Confianza'
+  };
+  const USOS_CFDI = {
+    'G03': 'Gastos en general',
+    'S01': 'Sin efectos fiscales'
+  };
+  const FACTURACION = {
+    'AAHN8712126IA': { reg: '621', cfdi: 'G03', limite: '5,000' },
+    'AIGI580403AI0': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'AOAG871223BT6': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'AURJ960703CZ7': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'CUEG920327LF1': { reg: '621', cfdi: 'G03', limite: '5,000' },
+    'FIGI530814M32': { reg: '626', cfdi: 'G03', limite: '2,000' },
+    'FOGJ8701222H3': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'GOGS800307ED6': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'HEMJ930802CF8': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'HUQJ6204121Y5': { reg: '621', cfdi: 'G03', limite: '5,000' },
+    'HUQN661010R37': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'JACG820529E8A': { reg: '626', cfdi: 'G03', limite: '2,000' },
+    'JASL000906218': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'LAGC970312HC3': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'LAGF840924F25': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'LAGG930102867': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'LAGM891222EA2': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'LEDJ870128HW0': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'RATS850427EJ6': { reg: '621', cfdi: 'G03', limite: '5,000' },
+    'VCS2106247S9':  { reg: '626', cfdi: 'G03', limite: '2,000' },
+    'VEHA860913QP4': { reg: '612', cfdi: 'G03', limite: '2,000' },
+    'VEHA950616NY3': { reg: '621', cfdi: 'G03', limite: '5,000' },
+    'VEHN9001251W1': { reg: '605', cfdi: 'S01', limite: '2,000' },
+    'VEVR651129QZ7': { reg: '626', cfdi: 'G03', limite: '2,000' }
+  };
 
   // ── RFC: auto-uppercase + Enter ─────────────────────────────
   const rfcInput = document.getElementById('rfc-input');
@@ -466,6 +562,7 @@
       window._urlOpinion = opFile  ? PAGES_BASE + opFile.name  : null;
 
       document.getElementById('badge-rfc').textContent = rfc;
+      mostrarFacturacion(rfc);
       res.style.display = 'block';
       setTimeout(() => res.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 30);
 
@@ -476,6 +573,58 @@
       btn.disabled  = false;
       btn.innerHTML = 'Buscar';
     }
+  }
+
+  // ── Datos de facturación ─────────────────────────────────────
+  function mostrarFacturacion(rfc) {
+    const card = document.getElementById('billing-card');
+    const body = document.getElementById('billing-body');
+    const d    = FACTURACION[rfc];
+
+    if (!d) { card.style.display = 'none'; return; }
+
+    const regNombre  = REGIMENES[d.reg]  || d.reg;
+    const cfdiNombre = USOS_CFDI[d.cfdi] || d.cfdi;
+
+    body.innerHTML = `
+      <div class="row"><span class="lbl">Régimen:</span><span>${d.reg} - ${regNombre}</span></div>
+      <div class="row"><span class="lbl">Uso CFDi:</span><span>${d.cfdi} - ${cfdiNombre}</span></div>
+      <hr class="sep">
+      <div class="limite">⚠️ Pagos en efectivo menores a $${d.limite} pesos</div>
+    `;
+    card.style.display = 'block';
+
+    // Resetear botón copiar
+    const btn = document.getElementById('btn-copy');
+    btn.textContent = '';
+    btn.innerHTML = `
+      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
+        <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+      </svg>
+      Copiar para WhatsApp`;
+    btn.classList.remove('copied');
+  }
+
+  function copiarDatos() {
+    const d = FACTURACION[rfcActual];
+    if (!d) return;
+    const regNombre  = REGIMENES[d.reg]  || d.reg;
+    const cfdiNombre = USOS_CFDI[d.cfdi] || d.cfdi;
+    const texto = `Factura DEBE llevar estos datos:\nRégimen: *${d.reg} - ${regNombre}*\nUso CFDi: *${d.cfdi} - ${cfdiNombre}*\n⚠️ Pagos en efectivo menores a $${d.limite} pesos`;
+
+    navigator.clipboard.writeText(texto).then(() => {
+      const btn = document.getElementById('btn-copy');
+      btn.innerHTML = '✓ Copiado';
+      btn.classList.add('copied');
+      setTimeout(() => {
+        btn.innerHTML = `
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.2">
+            <rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+          </svg>
+          Copiar para WhatsApp`;
+        btn.classList.remove('copied');
+      }, 2000);
+    }).catch(() => {});
   }
 
   // ── Validación anti-correo falso ─────────────────────────────
