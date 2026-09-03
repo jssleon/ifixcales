@@ -133,7 +133,6 @@
       display: none;
     }
     .msg.error   { background: #FEF2F2; color: var(--red);   border-left: 4px solid var(--red);   }
-    .msg.success { background: #F0FDF4; color: var(--green); border-left: 4px solid var(--green); }
 
     /* ── Resultados ── */
     #results { margin-top: 24px; display: none; animation: slideIn .22s ease; }
@@ -257,14 +256,26 @@
       box-shadow: 0 1px 4px rgba(27,42,74,.06);
     }
     .billing-header {
-      display: flex; align-items: center; gap: 8px;
+      display: flex; align-items: flex-start; gap: 8px;
       margin-bottom: 12px;
     }
-    .billing-icon { font-size: 18px; line-height: 1; }
+    .billing-icon { font-size: 18px; line-height: 1; margin-top: 1px; flex-shrink: 0; }
+    .billing-head-text { display: flex; flex-direction: column; gap: 2px; }
     .billing-title {
       font-size: .72rem; font-weight: 600;
       letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
+      line-height: 1;
     }
+    .billing-sub {
+      font-size: .7rem; color: var(--gray1); font-weight: 400;
+    }
+    .billing-warn {
+      display: flex; align-items: flex-start; gap: 8px;
+      background: #FFFBEB; border: 1px solid #FCD34D; border-radius: 9px;
+      padding: 9px 12px; margin-top: 10px;
+      font-size: .78rem; color: #92400E; line-height: 1.45;
+    }
+    .billing-warn .bw-ico { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
     .billing-body {
       font-size: .85rem; color: var(--navy); line-height: 1.7;
       margin-bottom: 14px;
@@ -342,8 +353,7 @@
           Buscar
         </button>
       </div>
-      <div class="msg error"   id="msg-error"></div>
-      <div class="msg success" id="msg-ok"></div>
+      <div class="msg error" id="msg-error"></div>
     </div>
 
     <div id="results">
@@ -376,7 +386,10 @@
       <div class="billing-card" id="billing-card" style="display:none">
         <div class="billing-header">
           <span class="billing-icon">🧾</span>
-          <span class="billing-title">Datos para facturación</span>
+          <div class="billing-head-text">
+            <span class="billing-title">Datos de Facturación</span>
+            <span class="billing-sub">Sólo gastos para el negocio</span>
+          </div>
         </div>
         <div class="billing-body" id="billing-body"></div>
         <button class="btn-copy" id="btn-copy" onclick="copiarDatos()">
@@ -385,6 +398,10 @@
           </svg>
           Copiar para WhatsApp
         </button>
+        <div class="billing-warn">
+          <span class="bw-ico">⚠️</span>
+          <span>¿El gasto es personal? Consulta al contador, los datos de facturación pueden ser diferentes.</span>
+        </div>
       </div>
     </div>
   </div>
@@ -427,7 +444,7 @@
   const GITHUB_BRANCH = 'main';
 
   // Opcional: URL de Google Apps Script para log de descargas
-  const REGISTRY_URL  = '';
+  const REGISTRY_URL  = 'https://script.google.com/macros/s/AKfycbw4dkOUghbgef489phMJWLSr5vfg_FjaNJ4cn4V7a_vM2h0QsFyWMWQ9wLxB8M30Z3tEw/exec';
   // ═══════════════════════════════════════════════════════════
 
   const API_URL    = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents/archivos?ref=${GITHUB_BRANCH}`;
@@ -443,6 +460,8 @@
   let rfcActual  = '';
   let tipoActual = '';
   let urlActual  = '';
+  let urlCsf     = null;
+  let urlOpinion = null;
 
   // ── Datos de facturación por RFC ─────────────────────────────
   const REGIMENES = {
@@ -557,9 +576,9 @@
         return;
       }
 
-      rfcActual = rfc;
-      window._urlCsf     = csfFile ? PAGES_BASE + csfFile.name : null;
-      window._urlOpinion = opFile  ? PAGES_BASE + opFile.name  : null;
+      rfcActual  = rfc;
+      urlCsf     = csfFile ? PAGES_BASE + csfFile.name : null;
+      urlOpinion = opFile  ? PAGES_BASE + opFile.name  : null;
 
       document.getElementById('badge-rfc').textContent = rfc;
       mostrarFacturacion(rfc);
@@ -610,7 +629,7 @@
     if (!d) return;
     const regNombre  = REGIMENES[d.reg]  || d.reg;
     const cfdiNombre = USOS_CFDI[d.cfdi] || d.cfdi;
-    const texto = `Factura DEBE llevar estos datos:\nRégimen: *${d.reg} - ${regNombre}*\nUso CFDi: *${d.cfdi} - ${cfdiNombre}*\n⚠️ Pagos en efectivo menores a $${d.limite} pesos`;
+    const texto = `Factura DEBE llevar estos datos:\n\nRégimen: *${d.reg} - ${regNombre}*\nUso CFDi: *${d.cfdi} - ${cfdiNombre}*\n\n⚠️ Pagos en efectivo menores a $${d.limite} pesos`;
 
     navigator.clipboard.writeText(texto).then(() => {
       const btn = document.getElementById('btn-copy');
@@ -650,7 +669,7 @@
 
   // ── MODAL ────────────────────────────────────────────────────
   function abrirModal(tipo) {
-    const url = tipo === 'csf' ? window._urlCsf : window._urlOpinion;
+    const url = tipo === 'csf' ? urlCsf : urlOpinion;
     if (!url) {
       alert('Este documento no está disponible para este RFC.');
       return;
